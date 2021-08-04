@@ -1,4 +1,25 @@
-This is my new Repo
+import pgl
+import paddle
+import numpy as np
 
 
-regards
+num_nodes = 5
+edges = [(0, 1), (1, 2), (3, 4)]
+feature = np.random.randn(5, 100).astype(np.float32)
+
+g = pgl.Graph(num_nodes=num_nodes,
+    edges=edges,
+    node_feat={
+        "h": feature
+    })
+g.tensor()
+
+def send_func(src_feat, dst_feat, edge_feat):
+    return src_feat
+
+def recv_func(msg):
+    return msg.reduce_sum(msg["h"])
+
+msg = g.send(send_func, src_feat=g.node_feat)
+
+ret = g.recv(recv_func, msg)
